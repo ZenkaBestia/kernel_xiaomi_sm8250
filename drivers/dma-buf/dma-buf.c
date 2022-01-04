@@ -109,7 +109,7 @@ out:
 			     dentry->d_name.name, ret > 0 ? name : "");
 }
 
-static void dma_buf_release(struct dentry *dentry)
+static int dma_buf_release(struct dentry *dentry)
 {
 	struct dma_buf *dmabuf;
 	int dtor_ret = 0;
@@ -151,11 +151,11 @@ static void dma_buf_release(struct dentry *dentry)
 
 	module_put(dmabuf->owner);
 	dmabuf_dent_put(dmabuf);
+	return 0;
 }
 
 static const struct dentry_operations dma_buf_dentry_ops = {
 	.d_dname = dmabuffs_dname,
-	.d_release = dma_buf_release,
 };
 
 static struct vfsmount *dma_buf_mnt;
@@ -468,7 +468,8 @@ static long dma_buf_ioctl(struct file *file,
 
 		return ret;
 
-	case DMA_BUF_SET_NAME:
+	case DMA_BUF_SET_NAME_A:
+	case DMA_BUF_SET_NAME_B:
 		return dma_buf_set_name(dmabuf, (const char __user *)arg);
 
 	default:
